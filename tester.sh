@@ -16,6 +16,18 @@ echo "hello world"
 -Wl,--export=__wasm_call_ctors \
 test.cpp -o test.wasm
 
+# CFLAGS="-O3 \
+# 	-DLIBCXX_BUILD_EXTERNAL_THREAD_LIBRARY" \
+# LDFLAGS="-WL,--export-all -Wl,--growable-table" \
+# /opt/wasi-sdk/wasi-sdk-14.0/bin/clang++ \
+# --sysroot /opt/wasi-sdk/wasi-sdk-14.0/share/wasi-sysroot \
+# -I/home/jgoldman/simdjson-tests \
+# -o parse.wasm \
+# parse.cpp \
+# simdjson.cpp \
+# -latomic
+
+
 # echo "compiling to wasm"
 # CFLAGS="-O3" \
 # LDFLAGS="-WL,--export-all -Wl,--growable-table" \
