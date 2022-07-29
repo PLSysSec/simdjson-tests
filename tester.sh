@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+echo "hello world"
+
 /opt/wasi-sdk/wasi-sdk-14.0/bin/clang++ \
 --target=wasm32 \
 --sysroot=/opt/wasm-micro-runtime/wamr-sdk/app/libc-builtin-sysroot \
