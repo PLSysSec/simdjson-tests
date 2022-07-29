@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <time.h>
 #include "simdjson.h"
 
@@ -6,21 +7,17 @@
 
 using namespace simdjson;
 
-double parse(bool timed) {
+double parse(char *json_file) {
   struct timespec start, end;
-  double dt = 0;
-  if (timed) {
-    clock_gettime(CLOCK_REALTIME, &start);
-  }
+  double dt;
+  clock_gettime(CLOCK_REALTIME, &start);
 
   ondemand::parser parser;
-  padded_string json = padded_string::load("twitter.json");
+  padded_string json = padded_string::load(json_file);
   ondemand::document tweets = parser.iterate(json);
 
-  if (timed) {
-    clock_gettime(CLOCK_REALTIME, &end);
-    dt = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / BILLION;
-  }
+  clock_gettime(CLOCK_REALTIME, &end);
+  dt = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / BILLION;
   return dt;
 }
 
@@ -31,15 +28,25 @@ void set_implementation(char *selected) {
   simdjson::get_active_implementation() = my_implementation;
 }
 
+/*
+argv[1] implementation to use
+  haswell: Intel/AMD AVX2
+  westmere: Intel/AMD SSE4.2
+  fallback: no optimizations
+argv[2] json file to parse
+  large-file.json: pulled from https://github.com/json-iterator/test-data
+  twitter.json: built in with simdjson github repository
+argv[3] output file to export execution speed (optional)
+*/
 int main(int argc, char *argv[]) {
-  if (argc > 1) {
-    set_implementation(argv[1]);
+  set_implementation(argv[1]);
+  double dt = parse(argv[2]);
+
+  if (argc > 3) {
+    std::ofstream out(argv[3], std::ios_base::app);
+    out << dt << "\n";
+    out.close();
   }
 
-  if (argc > 2) {
-    parse(true);
-  } else {
-    parse (false);
-  }
-  
+  return 0;
 }
