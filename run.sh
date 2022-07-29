@@ -24,6 +24,8 @@ if [[ "$wasm" = true ]]; then
 	simdjson.cpp \
 	-latomic
 
+	# try using emscripten
+
 	# wamrc --enable-multi-thread -o test.aot test.wasm
 
 elif [[ "$simd" = true ]]; then
