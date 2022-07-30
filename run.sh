@@ -69,6 +69,18 @@ if [[ "$wasm" = true ]]; then
   -o out/parse.aot \
   out/parse.wasm
 
+  echo "testing####"
+
+  if [[ "$simd" = true ]]; then
+    echo "whoops..."
+  else
+    ${WAMR_PATH}/product-mini/platforms/linux/build/iwasm \
+    --dir=${SCRIPT_PATH} out/parse.aot \ 
+    "fallback" \ 
+    ${SCRIPT_PATH}/json-files/${PARSE_FILE} \
+    ${SCRIPT_PATH}/results/wasm_fallback.csv
+  fi
+
 else
   echo "compiling parse.cpp to native target..."
   g++ -O3 -o out/parse parse.cpp simdjson.cpp  
