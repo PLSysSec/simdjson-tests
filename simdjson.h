@@ -3,6 +3,10 @@
 #ifndef SIMDJSON_H
 #define SIMDJSON_H
 
+#if __has_include("simd128.h")
+# include "simd128.h"
+#endif
+
 /**
  * @mainpage
  *

@@ -20,7 +20,10 @@ SCRIPT_PATH=$(dirname "$SCRIPT")
 
 if [[ "$wasm" = true ]]; then 
   echo "compiling parse.cpp to wasm target..."
-	emcc -O3 -o out/parse.wasm parse.cpp simdjson.cpp 2> /dev/null # ADD SIMDE SUPPORT
+	emcc -O3 \
+  -I${SIMDE_PATH}/wasm \
+  -o out/parse.wasm \
+  parse.cpp simdjson.cpp 
 
   # Extraneous step - only for checking WASM code
   echo "converting .wasm to .wat..."
