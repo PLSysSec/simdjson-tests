@@ -42,9 +42,6 @@ int main(int argc, char *argv[]) {
   set_implementation(argv[1]);
   double dt = parse(argv[2]);
 
-  const char* env_p = std::getenv("wasm");
-  std::cout << env_p << std::endl;
-
   if (argc > 3) {
     std::ofstream out(argv[3], std::ios_base::app);
     out << dt << "\n";
