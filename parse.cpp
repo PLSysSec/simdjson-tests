@@ -1,6 +1,7 @@
-#include <iostream>
-#include <fstream>
+#include <cstdio>
+#include <stdlib.h>
 #include <time.h>
+#include <string>
 #include "simdjson.h"
 
 #define BILLION 1000000000.0
@@ -11,8 +12,8 @@ double parse(char *json_file) {
   struct timespec start, end;
   double dt;
   clock_gettime(CLOCK_REALTIME, &start);
-
-  ondemand::parser parser;
+  
+  ondemand::parser parser; 
   padded_string json = padded_string::load(json_file);
   ondemand::document tweets = parser.iterate(json);
 
@@ -36,16 +37,17 @@ argv[1] implementation to use
 argv[2] json file to parse
   large-file.json: pulled from https://github.com/json-iterator/test-data
   twitter.json: built in with simdjson github repository
-argv[3] output file to export execution speed (optional)
+argv[3] number of iterations to test
 */
 int main(int argc, char *argv[]) {
   set_implementation(argv[1]);
-  double dt = parse(argv[2]);
 
-  if (argc > 3) {
-    std::ofstream out(argv[3], std::ios_base::app);
-    out << dt << "\n";
-    out.close();
+  int N;
+  std::string N_s(argv[3]);
+  argv[3] ? sscanf(N_s.data(), "%d", &N) : N = 1;
+  for (int i = 0; i < N; i++) {
+    double dt = parse(argv[2]);
+    printf("%f\n", dt);
   }
 
   return 0;

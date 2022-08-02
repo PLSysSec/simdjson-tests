@@ -37,28 +37,36 @@ SCRIPT_PATH=$(dirname "$SCRIPT")
 
 
 if [[ "$wasm" = true ]]; then 
-  echo "compiling parse.cpp to wasm target..."
-	emcc -O3 \
+  echo "compiling parse-wasm.cpp to wasm target..."
+	# emcc -O3 -g \
+  # -I${SIMDE_PATH}/wasm \
+  # -Wno-format \
+  # -o out/parse.wasm \
+  # parse-wasm.cpp simdjson.cpp \
+  # --preload-file json-files/${PARSE_FILE} 
+
+  emcc -O3 -g \
+  -matomics -mbulk-memory -sMALLOC="none" \
+  -Wl,--export=__data_end,--export=__heap_base \
+  -Wl,--shared-memory,--no-check-features \
+  -sERROR_ON_UNDEFINED_SYMBOLS=0 \
   -I${SIMDE_PATH}/wasm \
   -o out/parse.wasm \
-  parse.cpp simdjson.cpp \
+  parse-wasm.cpp simdjson.cpp \
+  --preload-file json-files/${PARSE_FILE} \
   2> /dev/null
-
-  # Extraneous step - only for checking WASM code
-  echo "converting .wasm to .wat..."
-  ${WABT_PATH}/build/wasm2wat -o out/parse.wat out/parse.wasm
   
   if [[ "$simd" = true ]]; then 
     echo "rebuilding WAMR with SIMD support..."
     cd ${WAMR_PATH}/wamr-compiler/build 
-    cmake .. -DWAMR_BUILD_SIMD=1
+    cmake .. -DWAMR_BUILD_SIMD=1 -DWAMR_BUILD_LIB_PTHREAD=1
     make 
     cd ${SCRIPT_PATH}
 
   else 
     echo "rebuilding WAMR without SIMD support..."
     cd ${WAMR_PATH}/wamr-compiler/build 
-    cmake .. -DWAMR_BUILD_SIMD=0
+    cmake .. -DWAMR_BUILD_SIMD=1 -DWAMR_BUILD_LIB_PTHREAD=1
     make 
     cd ${SCRIPT_PATH}
   fi
@@ -69,16 +77,32 @@ if [[ "$wasm" = true ]]; then
   -o out/parse.aot \
   out/parse.wasm
 
-  echo "testing####"
-
   if [[ "$simd" = true ]]; then
-    echo "whoops..."
+    for imp in $SIMD_IMPLEMENTATIONS; do
+      echo "testing $imp..."
+      ${WAMR_PATH}/product-mini/platforms/linux/build/iwasm \
+      --dir=${SCRIPT_PATH} \
+      --dir=${SCRIPT_PATH}/json-files \
+      --dir=${SCRIPT_PATH}/results \
+      -v=5 \
+      out/parse.aot \
+      "${imp}" \
+      ${SCRIPT_PATH}/json-files/${PARSE_FILE} \
+      "${N}" \
+      > results/wasm_${imp}.csv
+    done
+
   else
+    echo "testing fallback..."
     ${WAMR_PATH}/product-mini/platforms/linux/build/iwasm \
-    --dir=${SCRIPT_PATH} out/parse.aot \ 
-    "fallback" \ 
+    --dir=${SCRIPT_PATH} \
+    --dir=${SCRIPT_PATH}/json-files \
+    --dir=${SCRIPT_PATH}/results \
+    out/parse.aot \
+    "fallback" \
     ${SCRIPT_PATH}/json-files/${PARSE_FILE} \
-    ${SCRIPT_PATH}/results/wasm_fallback.csv
+    "${N}" \
+    > results/wasm_fallback.csv
   fi
 
 else
@@ -89,16 +113,14 @@ else
     for imp in $SIMD_IMPLEMENTATIONS; do
       cp /dev/null results/native_${imp}.csv
       echo "testing $imp..."
-      for i in $(seq $N); do 
-        out/parse ${imp} json-files/${PARSE_FILE} results/native_${imp}.csv
-      done
+      out/parse ${imp} json-files/${PARSE_FILE} "${N}" \
+      > results/native_${imp}.csv
     done
 
   else
     cp /dev/null results/native_fallback.csv
     echo "testing fallback..."
-    for i in $(seq $N); do
-        out/parse fallback json-files/${PARSE_FILE} results/native_fallback.csv
-    done
+    out/parse fallback json-files/${PARSE_FILE} "${N}" \
+    > results/native_fallback.csv
   fi
 fi
