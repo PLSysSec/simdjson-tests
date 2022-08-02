@@ -8,6 +8,8 @@
 
 using namespace simdjson;
 
+int N;
+
 double parse(char *json_file) {
   struct timespec start, end;
   double dt;
@@ -39,16 +41,14 @@ argv[2] json file to parse
   twitter.json: built in with simdjson github repository
 argv[3] number of iterations to test
 */
+
 int main(int argc, char *argv[]) {
   set_implementation(argv[1]);
-
-  int N;
   std::string N_s(argv[3]);
   argv[3] ? sscanf(N_s.data(), "%d", &N) : N = 1;
   for (int i = 0; i < N; i++) {
     double dt = parse(argv[2]);
     printf("%f\n", dt);
   }
-
   return 0;
 }

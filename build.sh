@@ -38,23 +38,16 @@ SCRIPT_PATH=$(dirname "$SCRIPT")
 
 if [[ "$wasm" = true ]]; then 
   echo "compiling parse-wasm.cpp to wasm target..."
-	# emcc -O3 -g \
-  # -I${SIMDE_PATH}/wasm \
-  # -Wno-format \
-  # -o out/parse.wasm \
-  # parse-wasm.cpp simdjson.cpp \
-  # --preload-file json-files/${PARSE_FILE} 
-
-  emcc -O3 -g \
-  -matomics -mbulk-memory -sMALLOC="none" \
+  emcc -O3 \
+  -matomics -mbulk-memory -s MALLOC="none" \
+  -Wl,--export-all \
   -Wl,--export=__data_end,--export=__heap_base \
   -Wl,--shared-memory,--no-check-features \
-  -sERROR_ON_UNDEFINED_SYMBOLS=0 \
+  -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
   -I${SIMDE_PATH}/wasm \
   -o out/parse.wasm \
-  parse-wasm.cpp simdjson.cpp \
-  --preload-file json-files/${PARSE_FILE} \
-  2> /dev/null
+  parse.cpp simdjson.cpp \
+  --preload-file json-files/${PARSE_FILE} 
   
   if [[ "$simd" = true ]]; then 
     echo "rebuilding WAMR with SIMD support..."
@@ -66,7 +59,7 @@ if [[ "$wasm" = true ]]; then
   else 
     echo "rebuilding WAMR without SIMD support..."
     cd ${WAMR_PATH}/wamr-compiler/build 
-    cmake .. -DWAMR_BUILD_SIMD=1 -DWAMR_BUILD_LIB_PTHREAD=1
+    cmake .. -DWAMR_BUILD_SIMD=0 -DWAMR_BUILD_LIB_PTHREAD=1
     make 
     cd ${SCRIPT_PATH}
   fi
