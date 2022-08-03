@@ -44,6 +44,8 @@ if [[ "$wasm" = true ]]; then
   -Wl,--export=__data_end,--export=__heap_base \
   -Wl,--shared-memory,--no-check-features \
   -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
+  -L${WAMR_PATH}/wamr-compiler/build \
+  -lvmlib \
   -I${SIMDE_PATH}/wasm \
   -o out/parse.wasm \
   parse.cpp simdjson.cpp \

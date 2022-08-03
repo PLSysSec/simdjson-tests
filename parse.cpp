@@ -41,7 +41,6 @@ argv[2] json file to parse
   twitter.json: built in with simdjson github repository
 argv[3] number of iterations to test
 */
-
 int main(int argc, char *argv[]) {
   set_implementation(argv[1]);
   std::string N_s(argv[3]);
