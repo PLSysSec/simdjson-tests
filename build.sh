@@ -38,18 +38,25 @@ SCRIPT_PATH=$(dirname "$SCRIPT")
 
 if [[ "$wasm" = true ]]; then 
   echo "compiling parse-wasm.cpp to wasm target..."
-  emcc -O3 \
-  -matomics -mbulk-memory -s MALLOC="none" \
-  -Wl,--export-all \
-  -Wl,--export=__data_end,--export=__heap_base \
-  -Wl,--shared-memory,--no-check-features \
-  -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
-  -L${WAMR_PATH}/wamr-compiler/build \
-  -lvmlib \
-  -I${SIMDE_PATH}/wasm \
-  -o out/parse.wasm \
-  parse.cpp simdjson.cpp \
-  --preload-file json-files/${PARSE_FILE} 
+  # emcc -O3 \
+  # -matomics -mbulk-memory -s MALLOC="none" \
+  # -Wl,--export-all \
+  # -Wl,--export=__data_end,--export=__heap_base \
+  # -Wl,--shared-memory,--no-check-features \
+  # -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
+  # -L${WAMR_PATH}/wamr-compiler/build \
+  # -lvmlib \
+  # -I${SIMDE_PATH}/wasm \
+  # -o out/parse.wasm \
+  # parse.cpp simdjson.cpp \
+  # --preload-file json-files/${PARSE_FILE} 
+
+  CFLAGS="-O3" \
+	LDFLAGS="-Wl,--export-all -Wl,--growable-table" \
+	${WASI_SDK_PATH}/bin/clang \
+	--sysroot ${WASI_SDK_PATH}/share/wasi-sysroot \
+	-I${WASI_SDK_PATH}/share/wasi-sysroot/include/libpng16 \
+	-I${SIMDE_PATH}/wasm \
   
   if [[ "$simd" = true ]]; then 
     echo "rebuilding WAMR with SIMD support..."
@@ -58,19 +65,25 @@ if [[ "$wasm" = true ]]; then
     make 
     cd ${SCRIPT_PATH}
 
+    echo "compiling to AOT with wamrc..."    
+    ${WAMR_PATH}/wamr-compiler/build/wamrc \
+    --enable-multi-thread \
+    -o out/parse.aot \
+    out/parse.wasm
   else 
     echo "rebuilding WAMR without SIMD support..."
     cd ${WAMR_PATH}/wamr-compiler/build 
     cmake .. -DWAMR_BUILD_SIMD=0 -DWAMR_BUILD_LIB_PTHREAD=1
     make 
-    cd ${SCRIPT_PATH}
+    cd ${SCRIPT_PATH}   
+    
+    echo "compiling to AOT with wamrc..."
+    ${WAMR_PATH}/wamr-compiler/build/wamrc \
+    --enable-multi-thread \
+    --disable-simd \ 
+    -o out/parse.aot
+    out/parse.wasm
   fi
-
-  echo "compiling to AOT with wamrc..."
-  ${WAMR_PATH}/wamr-compiler/build/wamrc \
-  --enable-multi-thread \
-  -o out/parse.aot \
-  out/parse.wasm
 
   if [[ "$simd" = true ]]; then
     for imp in $SIMD_IMPLEMENTATIONS; do

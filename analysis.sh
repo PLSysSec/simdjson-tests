@@ -4,13 +4,13 @@ set -e
 help() {
   echo "Run statistical analysis of execution tests"
   echo
-  echo "Syntax: bash run.sh -[h|s|w]"
+  echo "Syntax: bash run.sh -[h|s|w|a|c]"
   echo "options:"
   echo "h   Print this help menu."
   echo "s   Run analysis for SIMD instructions"
   echo "w   Run analysis for WASM target"
   echo "a   Run all tests"
-  echo "c   Run comparatile analysis"
+  echo "c   Run comparative analysis"
   echo
 }
 
@@ -52,11 +52,16 @@ wasm_S() {
     python3 analysis/stat_analysis.py results/wasm_fallback.csv
 }
 
+
 if [[ "$all" = true ]]; then
     native_nS
     native_S
     wasm_nS
     wasm_S
+fi
+
+if [[ "$comp" = true ]]; then 
+    python3 analysis/comp_analysis.py
 elif [[ "$simd" = true && "$wasm" = true ]]; then
     wasm_S
 elif [[ "$wasm" = true ]]; then
@@ -65,9 +70,5 @@ elif [[ "$simd" = true ]]; then
     native_S
 else 
     native_nS
-fi
-
-if [[ "$comp" = true ]]; then 
-    python3 analysis/comp_analysis.py
 fi
 
