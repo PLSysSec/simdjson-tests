@@ -14,6 +14,11 @@ help() {
   echo
 }
 
+build_with_pthread() {
+    cmake .. -DWAMR_BUILD_BULK_MEMORY=1 -DWAMR_BUILD_LIB_PTHREAD=1
+    make
+}
+
 while getopts "hsw" OPTION
 do
 	case $OPTION in
@@ -29,89 +34,41 @@ done
 # westmere: Intel/AMD SSE4.2
 # icelake might also work - still buggy
 SIMD_IMPLEMENTATIONS="haswell westmere"
-PARSE_FILE=large-file.json
-N=5
+PARSE_FILE=twitter.json
+N=2
 
 SCRIPT=$(readlink -f "$0")
 SCRIPT_PATH=$(dirname "$SCRIPT")
 
 
 if [[ "$wasm" = true ]]; then 
-  echo "compiling parse-wasm.cpp to wasm target..."
-  # emcc -O3 \
-  # -matomics -mbulk-memory -s MALLOC="none" \
-  # -Wl,--export-all \
-  # -Wl,--export=__data_end,--export=__heap_base \
-  # -Wl,--shared-memory,--no-check-features \
-  # -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
-  # -L${WAMR_PATH}/wamr-compiler/build \
-  # -lvmlib \
-  # -I${SIMDE_PATH}/wasm \
-  # -o out/parse.wasm \
-  # parse.cpp simdjson.cpp \
-  # --preload-file json-files/${PARSE_FILE} 
+  echo "compiling parse.cpp to wasm target..."
+  em++ -O3 -mbulk-memory -matomics                    \
+    -Wl,--export=__data_end,--export=__heap_base      \
+    -Wl,--shared-memory,--no-check-features           \
+    -s ERROR_ON_UNDEFINED_SYMBOLS=0                   \
+    -o out/parse.wasm                                 \
+    parse.cpp simdjson.cpp
 
-  CFLAGS="-O3" \
-	LDFLAGS="-Wl,--export-all -Wl,--growable-table" \
-	${WASI_SDK_PATH}/bin/clang \
-	--sysroot ${WASI_SDK_PATH}/share/wasi-sysroot \
-	-I${WASI_SDK_PATH}/share/wasi-sysroot/include/libpng16 \
-	-I${SIMDE_PATH}/wasm \
-  
-  if [[ "$simd" = true ]]; then 
-    echo "rebuilding WAMR with SIMD support..."
-    cd ${WAMR_PATH}/wamr-compiler/build 
-    cmake .. -DWAMR_BUILD_SIMD=1 -DWAMR_BUILD_LIB_PTHREAD=1
-    make 
-    cd ${SCRIPT_PATH}
+  echo "rebuilding iwasm"
+  cd ${WAMR_PATH}/product-mini/platforms/linux/build
+  build_with_pthread
+  echo "rebuilding wamr"
+  cd ${WAMR_PATH}/wamr-compiler/build 
+  build_with_pthread
+  cd ${SCRIPT_PATH}   
 
-    echo "compiling to AOT with wamrc..."    
-    ${WAMR_PATH}/wamr-compiler/build/wamrc \
-    --enable-multi-thread \
-    -o out/parse.aot \
+  echo "building AOT module"
+  ${WAMR_PATH}/wamr-compiler/build/wamrc      \
+    --enable-multi-thread                     \
+    -o out/parse.aot                          \
     out/parse.wasm
-  else 
-    echo "rebuilding WAMR without SIMD support..."
-    cd ${WAMR_PATH}/wamr-compiler/build 
-    cmake .. -DWAMR_BUILD_SIMD=0 -DWAMR_BUILD_LIB_PTHREAD=1
-    make 
-    cd ${SCRIPT_PATH}   
-    
-    echo "compiling to AOT with wamrc..."
-    ${WAMR_PATH}/wamr-compiler/build/wamrc \
-    --enable-multi-thread \
-    --disable-simd \ 
-    -o out/parse.aot
-    out/parse.wasm
-  fi
 
-  if [[ "$simd" = true ]]; then
-    for imp in $SIMD_IMPLEMENTATIONS; do
-      echo "testing $imp..."
-      ${WAMR_PATH}/product-mini/platforms/linux/build/iwasm \
-      --dir=${SCRIPT_PATH} \
-      --dir=${SCRIPT_PATH}/json-files \
-      --dir=${SCRIPT_PATH}/results \
-      -v=5 \
-      out/parse.aot \
-      "${imp}" \
-      ${SCRIPT_PATH}/json-files/${PARSE_FILE} \
-      "${N}" \
-      > results/wasm_${imp}.csv
-    done
-
-  else
-    echo "testing fallback..."
-    ${WAMR_PATH}/product-mini/platforms/linux/build/iwasm \
+  echo "running iwasm"
+  ${WAMR_PATH}/product-mini/platforms/linux/build/iwasm \
     --dir=${SCRIPT_PATH} \
-    --dir=${SCRIPT_PATH}/json-files \
-    --dir=${SCRIPT_PATH}/results \
-    out/parse.aot \
-    "fallback" \
-    ${SCRIPT_PATH}/json-files/${PARSE_FILE} \
-    "${N}" \
-    > results/wasm_fallback.csv
-  fi
+    out/parse.aot "fallback" ${SCRIPT_PATH}/json-files/${PARSE_FILE} "${N}"
+  # "fallback" ${SCRIPT_PATH}/json-files/${PARSE_FILE} "${N}"
 
 else
   echo "compiling parse.cpp to native target..."

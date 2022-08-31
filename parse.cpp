@@ -1,4 +1,4 @@
-#include <cstdio>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string>
@@ -11,16 +11,17 @@ using namespace simdjson;
 int N;
 
 double parse(char *json_file) {
-  struct timespec start, end;
-  double dt;
-  clock_gettime(CLOCK_REALTIME, &start);
+  // struct timespec start, end;
+  double dt = 10.0;
+  // clock_gettime(CLOCK_REALTIME, &start);
   
   ondemand::parser parser; 
-  padded_string json = padded_string::load(json_file);
-  ondemand::document tweets = parser.iterate(json);
+  printf("%s\n", json_file);
+  // padded_string json = padded_string::load(json_file);
+  // ondemand::document tweets = parser.iterate(json);
 
-  clock_gettime(CLOCK_REALTIME, &end);
-  dt = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / BILLION;
+  // clock_gettime(CLOCK_REALTIME, &end);
+  // dt = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / BILLION;
   return dt;
 }
 

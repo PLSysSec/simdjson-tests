@@ -15,7 +15,7 @@ help() {
 }
 
 
-while getopts "hsw" OPTION
+while getopts "hswac" OPTION
 do
 	case $OPTION in
 		h) help
