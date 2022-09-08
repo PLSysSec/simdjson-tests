@@ -82,6 +82,7 @@ if [[ "$wasm" = true ]]; then
     imp="fallback" 
     out="fallback"
   fi
+  # TODO: step not working for WASM - incorporate SIMDe
   echo "running iwasm..."
   cat json-files/${PARSE_FILE} |                          \
     ${WAMR_PATH}/product-mini/platforms/linux/build/iwasm \
