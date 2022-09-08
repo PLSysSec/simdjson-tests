@@ -113,7 +113,7 @@ enum {
 #ifndef SIMDJSON_COMMON_DEFS_H
 #define SIMDJSON_COMMON_DEFS_H
 
-#include <cassert>
+#include <assert.h>
 /* begin file include/simdjson/portability.h */
 #ifndef SIMDJSON_PORTABILITY_H
 #define SIMDJSON_PORTABILITY_H
@@ -122,7 +122,7 @@ enum {
 #include <cstdint>
 #include <cstdlib>
 #include <cfloat>
-#include <cassert>
+#include <assert.h>
 #ifndef _WIN32
 // strcasecmp, strncasecmp
 #include <strings.h>
@@ -163,7 +163,7 @@ enum {
 #elif defined(__PPC64__) || defined(_M_PPC64)
 #define SIMDJSON_IS_PPC64 1
 #else
-#define SIMDJSON_IS_32BITS 1
+#define SIMDJSON_IS_32BITS 1 // original
 
 // We do not support 32-bit platforms, but it can be
 // handy to identify them.
@@ -969,7 +969,7 @@ using std::operator<<;
 // Additional includes:
 
 #include <algorithm>
-#include <cassert>
+#include <assert.h>
 #include <iterator>
 #include <limits>
 #include <string>   // std::char_traits<>
@@ -3875,6 +3875,7 @@ inline simdjson_result<padded_string> padded_string::load(std::string_view filen
   SIMDJSON_POP_DISABLE_WARNINGS
 
   if (fp == nullptr) {
+    printf("IO ERROR: fp is nullptr\n");
     return IO_ERROR;
   }
 

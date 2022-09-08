@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string>
+#include <iostream>
 #include "simdjson.h"
 
 #define BILLION 1000000000.0
@@ -10,18 +11,17 @@ using namespace simdjson;
 
 int N;
 
-double parse(char *json_file) {
-  // struct timespec start, end;
+double parse(std::string_view json_sv) {
+  struct timespec start, end;
   double dt = 10.0;
-  // clock_gettime(CLOCK_REALTIME, &start);
+  clock_gettime(CLOCK_REALTIME, &start);
   
   ondemand::parser parser; 
-  printf("%s\n", json_file);
-  // padded_string json = padded_string::load(json_file);
-  // ondemand::document tweets = parser.iterate(json);
+  padded_string json = padded_string(json_sv);
+  ondemand::document tweets = parser.iterate(json);
 
-  // clock_gettime(CLOCK_REALTIME, &end);
-  // dt = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / BILLION;
+  clock_gettime(CLOCK_REALTIME, &end);
+  dt = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / BILLION;
   return dt;
 }
 
@@ -44,10 +44,20 @@ argv[3] number of iterations to test
 */
 int main(int argc, char *argv[]) {
   set_implementation(argv[1]);
+  std::string_view json_file{ argv[2] };
   std::string N_s(argv[3]);
+
+  std::string json_str;
+  for (std::string line; std::getline(std::cin, line);) {
+      json_str += line;
+  }
+  std::string_view json_sv { json_str };
+  std::cout << "Parsing: " << json_file << std::endl;
+  std::cout << "Character Count: " << json_str.length() << std::endl;
+
   argv[3] ? sscanf(N_s.data(), "%d", &N) : N = 1;
   for (int i = 0; i < N; i++) {
-    double dt = parse(argv[2]);
+    double dt = parse(json_str);
     printf("%f\n", dt);
   }
   return 0;

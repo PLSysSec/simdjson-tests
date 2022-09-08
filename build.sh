@@ -34,8 +34,10 @@ done
 # westmere: Intel/AMD SSE4.2
 # icelake might also work - still buggy
 SIMD_IMPLEMENTATIONS="haswell westmere"
+# file to parse in testing
 PARSE_FILE=twitter.json
-N=2
+# number of iterations to test 
+N=250
 
 SCRIPT=$(readlink -f "$0")
 SCRIPT_PATH=$(dirname "$SCRIPT")
@@ -65,10 +67,10 @@ if [[ "$wasm" = true ]]; then
     out/parse.wasm
 
   echo "running iwasm"
-  ${WAMR_PATH}/product-mini/platforms/linux/build/iwasm \
-    --dir=${SCRIPT_PATH} \
+  cat json-files/${PARSE_FILE} |                          \
+    ${WAMR_PATH}/product-mini/platforms/linux/build/iwasm \
+    --dir=${SCRIPT_PATH}                                  \
     out/parse.aot "fallback" ${SCRIPT_PATH}/json-files/${PARSE_FILE} "${N}"
-  # "fallback" ${SCRIPT_PATH}/json-files/${PARSE_FILE} "${N}"
 
 else
   echo "compiling parse.cpp to native target..."
