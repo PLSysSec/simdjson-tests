@@ -47,6 +47,7 @@ if [[ "$wasm" = true ]]; then
   echo "compiling parse.cpp to wasm target..."
   if [[ "$simd" = true ]]; then OPT="-msimd128"; fi
   em++ -O3 -mbulk-memory -matomics "$OPT"             \
+    -I${SIMDE_PATH}/simde/wasm                        \
     -Wl,--export=__data_end,--export=__heap_base      \
     -Wl,--shared-memory,--no-check-features           \
     -s ERROR_ON_UNDEFINED_SYMBOLS=0                   \
