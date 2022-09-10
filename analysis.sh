@@ -49,7 +49,7 @@ wasm_nS() {
 }
 
 wasm_S() {
-    python3 analysis/stat_analysis.py results/wasm_fallback.csv
+    python3 analysis/stat_analysis.py results/wasm_simd128.csv
 }
 
 

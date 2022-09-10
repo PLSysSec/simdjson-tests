@@ -56,7 +56,7 @@ def init():
         (
           wasm_simd128_p + '_results.txt',
           'WASM Parsing with SIMD128 Instructions',
-          wasm_fallback_p + '.png'
+          wasm_simd128_p + '.png'
         )
     }
 

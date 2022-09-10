@@ -6,9 +6,11 @@ set -e
 # icelake might also work - still buggy
 SIMD_IMPLEMENTATIONS="haswell westmere"
 # file to parse in testing
-PARSE_FILE=twitter.json
+PARSE_FILE=large-file.json
+# heap size necessary for running iwasm with large-file.json
+LARGE_HEAP=500000000
 # number of iterations to test 
-N=3
+N=250
 
 while getopts "hsw" OPTION
 do
@@ -46,7 +48,7 @@ build_with_pthread() {
 if [[ "$wasm" = true ]]; then 
   echo "compiling parse.cpp to wasm target..."
   if [[ "$simd" = true ]]; then OPT="-msimd128"; fi
-  em++ -O3 -mbulk-memory -matomics "$OPT"             \
+  em++ -O3 -mbulk-memory -matomics $OPT               \
     -I${SIMDE_PATH}/simde/wasm                        \
     -Wl,--export=__data_end,--export=__heap_base      \
     -Wl,--shared-memory,--no-check-features           \
@@ -58,7 +60,7 @@ if [[ "$wasm" = true ]]; then
   echo "generating wat file..."
   ${WABT_PATH}/build/wasm2wat \
     --enable-threads \
-    -o out/parse${OPT}.wat \
+    -o out/parse${OUT}.wat \
     out/parse.wasm
 
   echo "rebuilding iwasm..."
@@ -77,7 +79,8 @@ if [[ "$wasm" = true ]]; then
 
   if [[ "$simd" = true ]]; then 
     set -- $SIMD_IMPLEMENTATIONS
-    imp=$1 
+    #imp=$1 # seems to be somewhat faster when using "fallback"
+    imp="fallback"
     out="simd128"
   else 
     imp="fallback" 
@@ -88,7 +91,9 @@ if [[ "$wasm" = true ]]; then
   cat json-files/${PARSE_FILE} |                          \
     ${WAMR_PATH}/product-mini/platforms/linux/build/iwasm \
     --dir=${SCRIPT_PATH}                                  \
-    out/parse.aot "$imp" "$N"                             
+    --heap-size=${LARGE_HEAP}                             \
+    out/parse.aot "$imp" "$N"                             \
+    > results/wasm_${out}.csv
 
 else
   echo "compiling parse.cpp to native target..."

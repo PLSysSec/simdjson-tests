@@ -11,19 +11,26 @@ using namespace simdjson;
 
 void set_implementation(char *selected) {
   auto my_implementation = get_available_implementations()[selected];
-  if(!my_implementation) { exit(1); }
-  if(!my_implementation->supported_by_runtime_system()) { exit(1); }
+  if(!my_implementation) { 
+    std::cout << selected << " not a valid implementation" << std::endl;
+    exit(1); 
+  }
+  if(!my_implementation->supported_by_runtime_system()) { 
+    std::cout << selected << " implementation not supported" << std::endl;
+    exit(1); 
+  }
   get_active_implementation() = my_implementation;
 }
 
 double parse(std::string_view json_sv) {
   struct timespec start, end;
+  ondemand::parser parser; 
+  ondemand::document doc;
+  padded_string json = padded_string(json_sv);
   clock_gettime(CLOCK_REALTIME, &start);
   
-  ondemand::parser parser; 
-  padded_string json = padded_string(json_sv);
-  ondemand::document doc = parser.iterate(json);
-
+  doc = parser.iterate(json);
+  
   clock_gettime(CLOCK_REALTIME, &end);
   double dt = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / BILLION;
   return dt;
@@ -37,9 +44,7 @@ argv[1] implementation to use
 argv[2] number of iterations to test (default N = 1)
 */
 int main(int argc, char *argv[]) {  
-  std::cout << "Before setting Implementation" << std::endl;
   set_implementation(argv[1]);
-  std::cout << "Implementation successfully set" << std::endl;
   std::string N_str { argv[2] };
 
   std::string json_str;
