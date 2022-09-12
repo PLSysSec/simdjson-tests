@@ -4,3 +4,5 @@ out/*
 simdjson/
 # pycache files doesn't need to be included
 **/__pycache__
+# local vscode configuration
+.vscode

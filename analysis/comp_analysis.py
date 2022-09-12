@@ -51,7 +51,7 @@ def generate_txt(data: dict) -> None:
     native_wf_p = get_improvement(
         data[config.native_fallback_fn][0], data[config.native_westmere_fn][0], True, False, 2)
     wasm_sf_p = get_improvement(
-        data[config.wasm_simd128_fn][0], data[config.wasm_fallback_fn][0], True, False, 3)
+        data[config.wasm_fallback_fn][0], data[config.wasm_simd128_fn][0], True, False, 3)
     wasm_s_native_h_p = get_improvement(
         data[config.wasm_simd128_fn][0], data[config.native_haswell_fn][0], True, False, 4)
     wasm_s_native_w_p = get_improvement(
@@ -66,7 +66,7 @@ def generate_txt(data: dict) -> None:
     native_wf_t = get_improvement(
         data[config.native_fallback_fn][0], data[config.native_westmere_fn][0], False, False, 9)
     wasm_sf_t = get_improvement(
-        data[config.wasm_simd128_fn][0], data[config.wasm_fallback_fn][0], False, False, 10)
+        data[config.wasm_fallback_fn][0], data[config.wasm_simd128_fn][0], False, False, 10)
     wasm_s_native_h_t = get_improvement(
         data[config.wasm_simd128_fn][0], data[config.native_haswell_fn][0], False, False, 11)
     wasm_s_native_w_t = get_improvement(
@@ -96,7 +96,7 @@ def generate_txt(data: dict) -> None:
                     (str(native_hf_p) if i else str(native_hf_t)) + "\n")
             f.write("  native fallback -> native westmere : " +
                     (str(native_wf_p) if i else str(native_wf_t)) + "\n")
-            f.write("  wasm simd128 -> wasm fallback      : " +
+            f.write("  wasm fallback -> wasm simd128      : " +
                     (str(wasm_sf_p) if i else str(wasm_sf_t)) + "\n")
             f.write("  wasm simd128 -> native haswell     : " +
                     (str(wasm_s_native_h_p) if i else str(wasm_s_native_h_t)) + "\n")

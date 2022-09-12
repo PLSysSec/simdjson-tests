@@ -6,6 +6,7 @@
 #if __has_include ("simd128.h")
 #   include "simd128.h"
 #endif
+#include <wasm_simd128.h>
 
 /**
  * @mainpage

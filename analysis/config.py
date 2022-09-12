@@ -6,6 +6,10 @@ def init():
     MIN = 0.00
     MAX = 0.10
 
+    # maximum variance - ensures benchmarking environment properly set
+    global MAX_VAR
+    MAX_VAR=10**-6
+
     # directory for results output files
     results_dir = 'results/'
     raw_data_dir = 'raw-data/'

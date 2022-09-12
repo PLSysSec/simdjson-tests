@@ -76,12 +76,12 @@ if [[ "$wasm" = true ]]; then
   echo "building AOT module..."
   ${WAMR_PATH}/wamr-compiler/build/wamrc      \
     --enable-multi-thread                     \
-    -o out/parse.aot                          \
+    -o out/parse1.aot                          \
     out/parse.wasm
 
   if [[ "$simd" = true ]]; then 
     set -- $SIMD_IMPLEMENTATIONS
-    #imp=$1 # seems to be somewhat faster when using "fallback"
+    #imp=$1 
     imp="fallback"
     out="simd128"
   else 

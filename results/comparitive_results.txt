@@ -2,24 +2,24 @@ averages:
   native fallback  : 0.062131134000000005
   native haswell   : 0.00815500676
   native westmere  : 0.010647405200000001
-  wasm fallback    : 0.0777592892
-  wasm simd128     : 0.089619672
+  wasm fallback    : 0.07786280400000001
+  wasm simd128     : 0.0765148592
 
 performance increase percentage [100 * (hi - lo) / lo]: 
   native westmere -> native haswell  : 30.562800416366567
   native fallback -> native haswell  : 661.8771612152533
   native fallback -> native westmere : 483.5331034457108
-  wasm simd128 -> wasm fallback      : 15.252689321136438
-  wasm simd128 -> native haswell     : 998.9527616283667
-  wasm simd128 -> native westmere    : 741.7043431389272
-  wasm fallback -> native fallback   : 25.153500658784036
+  wasm fallback -> wasm simd128      : 1.7616771619178704
+  wasm simd128 -> native haswell     : 838.2562326655876
+  wasm simd128 -> native westmere    : 618.6244701197244
+  wasm fallback -> native fallback   : 25.320107629131638
 
 time reduction percentage [100 * (hi - lo) / hi]: 
   native westmere -> native haswell  : 23.40850557655119
   native fallback -> native haswell  : 86.87452451777236
   native fallback -> native westmere : 82.86301164244
-  wasm simd128 -> wasm fallback      : 13.234128774762755
-  wasm simd128 -> native haswell     : 90.90042779893236
-  wasm simd128 -> native westmere    : 88.11934370837687
-  wasm fallback -> native fallback   : 20.098119929830833
+  wasm fallback -> wasm simd128      : 1.7311793703191247
+  wasm simd128 -> native haswell     : 89.34193064554447
+  wasm simd128 -> native westmere    : 86.08452618050428
+  wasm fallback -> native fallback   : 20.204345582006013
 

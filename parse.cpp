@@ -5,6 +5,8 @@
 #include <iostream>
 #include "simdjson.h"
 
+#include <wasm_simd128.h>
+
 #define BILLION 1000000000.0
 
 using namespace simdjson;

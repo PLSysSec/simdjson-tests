@@ -14,7 +14,10 @@ def main(filename):
     with open(exports[0], 'w') as f:
         f.write("mean: " + str(np.mean(data)) + "\n")
         f.write("standard deviation: " + str(np.std(data)) + "\n")
-        f.write("variance: " + str(np.var(data)) + "\n")
+        var = np.var(data)
+        if (var > config.MAX_VAR):
+            print('*variance larger than maximum on ' + filename)
+        f.write("variance: " + str(var) + "\n")
         f.write("max: " + str(max(data)) + "\n")
         f.write("min: " + str(min(data)) + "\n")
 
