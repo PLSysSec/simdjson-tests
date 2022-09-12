@@ -6,6 +6,7 @@ import config
 
 
 def main(filename):
+    print('running statistical analysis on ' + filename)
     config.init()
     data = np.genfromtxt(filename, delimiter=',')
     exports = config.stat_struct[filename]

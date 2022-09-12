@@ -11,6 +11,8 @@ PARSE_FILE=large-file.json
 LARGE_HEAP=500000000
 # number of iterations to test 
 N=250
+# directory to place output csv files
+CSV_DIR=results/raw-data
 
 while getopts "hsw" OPTION
 do
@@ -93,7 +95,7 @@ if [[ "$wasm" = true ]]; then
     --dir=${SCRIPT_PATH}                                  \
     --heap-size=${LARGE_HEAP}                             \
     out/parse.aot "$imp" "$N"                             \
-    > results/wasm_${out}.csv
+    > ${CSV_DIR}/wasm_${out}.csv
 
 else
   echo "compiling parse.cpp to native target..."
@@ -101,16 +103,14 @@ else
 
   if [[ "$simd" = true ]]; then
     for imp in $SIMD_IMPLEMENTATIONS; do
-      cp /dev/null results/native_${imp}.csv
       echo "testing $imp..."
       cat json-files/${PARSE_FILE} | out/parse "$imp" "$N" \
-      > results/native_${imp}.csv
+      > ${CSV_DIR}/native_${imp}.csv
     done
 
   else
-    cp /dev/null results/native_fallback.csv
     echo "testing fallback..."
     cat json-files/${PARSE_FILE} | out/parse "fallback" "$N" \
-    > results/native_fallback.csv
+    > ${CSV_DIR}/native_fallback.csv
   fi
 fi

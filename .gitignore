@@ -1,2 +1,6 @@
+# don't need to include output binary files
 out/*
+# local clone of simdjson github repo
 simdjson/
+# pycache files doesn't need to be included
+**/__pycache__
