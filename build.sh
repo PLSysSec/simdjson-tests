@@ -76,7 +76,7 @@ if [[ "$wasm" = true ]]; then
   echo "building AOT module..."
   ${WAMR_PATH}/wamr-compiler/build/wamrc      \
     --enable-multi-thread                     \
-    -o out/parse1.aot                          \
+    -o out/parse.aot                          \
     out/parse.wasm
 
   if [[ "$simd" = true ]]; then 

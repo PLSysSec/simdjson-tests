@@ -8,7 +8,7 @@ def init():
 
     # maximum variance - ensures benchmarking environment properly set
     global MAX_VAR
-    MAX_VAR=10**-6
+    MAX_VAR=10**-4
 
     # directory for results output files
     results_dir = 'results/'
