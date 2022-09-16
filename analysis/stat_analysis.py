@@ -21,7 +21,7 @@ def main(filename):
         f.write("max: " + str(max(data)) + "\n")
         f.write("min: " + str(min(data)) + "\n")
 
-    _ = plt.hist(data, bins=25)
+    plt.hist(data, bins=np.arange(config.MIN, config.MAX, config.delta))
     plt.xlabel("Time [s]")
     plt.ylabel("Frequency")
     plt.title(exports[1])

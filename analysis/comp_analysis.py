@@ -10,7 +10,7 @@ def get_improvement(hi: float, lo: float, is_performance: bool, switch: bool, n:
     Get improvement from two execution speeds.
     Arguments:
       hi, lo: (float) execution speeds
-      performance: (bool) True if calculating performance increase, False if calculating time reduction.
+      is_performance: (bool) True if calculating performance increase, False if calculating time reduction.
       switch: (bool) True if in the case lo > hi, the variables should be switched. False if the system should exit
       n: (int) Index of which test were are performing
     Returns: (float) Calculated improvement
@@ -114,16 +114,16 @@ def generate_hist(data: dict) -> None:
     Arguments:
       data = {filename: (average execution time, [raw data])}
     """
-    bins = np.arange(config.MIN, config.MAX, 0.002)
-    plt.hist(data[config.native_fallback_fn][1], bins, alpha=0.5,
+    bins = np.arange(config.MIN, config.MAX, config.delta)
+    plt.hist(data[config.native_fallback_fn][1], bins, alpha=config.alpha,
              label=config.comp_info[1][0], edgecolor="black")
-    plt.hist(data[config.native_haswell_fn][1], bins, alpha=0.5,
+    plt.hist(data[config.native_haswell_fn][1], bins, alpha=config.alpha,
              label=config.comp_info[1][1], edgecolor="black")
-    plt.hist(data[config.native_westmere_fn][1], bins, alpha=0.5,
+    plt.hist(data[config.native_westmere_fn][1], bins, alpha=config.alpha,
              label=config.comp_info[1][2], edgecolor="black")
-    plt.hist(data[config.wasm_fallback_fn][1], bins, alpha=0.5,
+    plt.hist(data[config.wasm_fallback_fn][1], bins, alpha=config.alpha,
              label=config.comp_info[1][3], edgecolor="black")
-    plt.hist(data[config.wasm_simd128_fn][1], bins, alpha=0.5,
+    plt.hist(data[config.wasm_simd128_fn][1], bins, alpha=config.alpha,
              label=config.comp_info[1][4], edgecolor="black")
 
     plt.xlabel("Time [s]")
@@ -146,7 +146,7 @@ def generate_bar(data: dict) -> None:
     for i in range(5):
         y_axis[i] = list(data.values())[i][0]
 
-    plt.figure(figsize=(12,6))
+    plt.figure(figsize=config.fig_size)
     plt.bar(x_axis, y_axis)
     plt.xlabel('Implementation')
     plt.ylabel('Time [s]')

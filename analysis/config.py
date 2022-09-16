@@ -10,6 +10,15 @@ def init():
     global MAX_VAR
     MAX_VAR=10**-4
 
+    # values for histogram visualization - alpha is opacity and delta is width
+    global alpha, delta
+    alpha = 0.5
+    delta = 0.002
+
+    # figure dimensions for bar chart
+    global fig_size
+    fig_size = (12, 6)
+
     # directory for results output files
     results_dir = 'results/'
     raw_data_dir = 'raw-data/'
